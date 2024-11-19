@@ -22,3 +22,6 @@ You can run the `main.py` script, which will:
 #### Example
 ```bash
 python main.py
+
+To run unit tests:
+python -m unittest test_module.py
