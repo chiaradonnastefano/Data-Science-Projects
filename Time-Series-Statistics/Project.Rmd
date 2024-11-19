@@ -1,0 +1,128 @@
+---
+title: "STP 598 Project"
+output: html_notebook
+---
+```{r}
+
+library("readxl")
+library("dplyr")
+library("lubridate")
+library("rugarch")
+library("tseries")
+
+healthcare <- read_excel("E:/sdc24/Graduate/STP_598/Project/Truncated_HHS_Data.xlsx")
+healthcare = as.data.frame(healthcare)
+
+full_data <- read_excel("E:/sdc24/Graduate/STP_598/Project/HHS_Data.xlsx")
+full_data = as.data.frame(full_data)
+
+business <- read_excel("E:/sdc24/Graduate/STP_598/Project/Business.xlsx")
+business = as.data.frame(business)
+
+```
+
+
+```{r}
+# Healthcare
+# Aggregate breaches into monthly number of individuals affected
+data_new1 <- healthcare                                # Duplicate data
+data_new1$year <- strftime(data_new1$date, "%Y")    # Create year column
+data_new1$month <- strftime(data_new1$date, "%m")   # Create month column
+
+
+data_aggr1 <- aggregate(value ~ month + year,       # Aggregate data
+                        data_new1,
+                        FUN = sum)
+
+# Convert month-year into date format for easier handling
+data_aggr1$month_year <- paste(data_aggr1$month, data_aggr1$year, sep = "-")
+data_aggr1$date <- as.Date(paste0("01-", data_aggr1$month_year), format = "%d-%m-%Y")
+
+data_aggr1 <- data_aggr1[, c("value", "date")]
+
+# Plot Time Series Data
+n = nrow(data_aggr1)
+ind = trunc(seq(1, n, length = 6))
+
+date = c("2009", "2012", "2015","2018","2021", "2023")
+plot(log(data_aggr1[,1]), main = "Data Breaches in Healthcare",xlab = "Year", ylab = "Log-Number of Individuals Affected", axes = FALSE, type = "l")
+
+axis(2);axis(1,at=ind,lab=date);box()
+
+```
+
+
+```{r}
+# Business Data
+# Aggregate breaches into monthly number of individuals affected
+data_new2 <- business                            # Duplicate data
+data_new2$year <- strftime(data_new2$date, "%Y")    # Create year column
+data_new2$month <- strftime(data_new2$date, "%m")   # Create month column
+
+
+data_aggr1 <- aggregate(value ~ month + year,       # Aggregate data
+                        data_new2,
+                        FUN = sum)
+
+# Convert month-year into date format for easier handling
+data_aggr1$month_year <- paste(data_aggr1$month, data_aggr1$year, sep = "-")
+data_aggr1$date <- as.Date(paste0("01-", data_aggr1$month_year), format = "%d-%m-%Y")
+
+data_aggr1 <- data_aggr1[, c("value", "date")]
+
+# Plot Time Series Data
+n = nrow(data_aggr1)
+ind = trunc(seq(1, n, length = 6))
+
+date = c("2009", "2012", "2015","2018","2021", "2023")
+plot(log(data_aggr1[,1]), main = "Data Breaches in Business",xlab = "Year", ylab = "Log-Number of Individuals Affected", axes = FALSE, type = "l")
+
+axis(2);axis(1,at=ind,lab=date);box()
+
+```
+
+```{r}
+# Full Data
+# Aggregate breaches into monthly number of individuals affected
+data_new2 <- full_data                           # Duplicate data
+data_new2$year <- strftime(data_new2$date, "%Y")    # Create year column
+data_new2$month <- strftime(data_new2$date, "%m")   # Create month column
+
+
+data_aggr1 <- aggregate(value ~ month + year,       # Aggregate data
+                        data_new2,
+                        FUN = sum)
+
+# Convert month-year into date format for easier handling
+data_aggr1$month_year <- paste(data_aggr1$month, data_aggr1$year, sep = "-")
+data_aggr1$date <- as.Date(paste0("01-", data_aggr1$month_year), format = "%d-%m-%Y")
+
+data_aggr1 <- data_aggr1[, c("value", "date")]
+
+# Plot Time Series Data
+n = nrow(data_aggr1)
+ind = trunc(seq(1, n, length = 6))
+
+date = c("2009", "2012", "2015","2018","2021", "2023")
+plot(log(data_aggr1[,1]), main = "Data Breaches of Full Dataset",xlab = "Year", ylab = "Log-Number of Individuals Affected", axes = FALSE, type = "l")
+
+axis(2);axis(1,at=ind,lab=date);box()
+
+```
+
+
+```{r}
+spec <- ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(1,1)), 
+                   mean.model = list(armaOrder = c(1,1)), 
+                   distribution.model = "std")
+
+data = log(data_aggr1[,1])
+
+fit <- ugarchfit(spec, data)
+
+plot(fit, ylab="Standardized Residuals", xlab="Time")
+
+```
+
+
+
