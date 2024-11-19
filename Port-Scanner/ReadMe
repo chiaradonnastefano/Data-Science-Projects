@@ -1,1 +1,24 @@
+# Port Scanner
 
+## Overview
+This is a simple Python-based port scanner that scans a range of ports on a target (IP address or hostname) to check for open ports. It also provides the option to display the service associated with each open port in verbose mode. The service information is retrieved from a `ports_and_services.json` file.
+My solution from https://freecodecam.com
+## Files
+- `port_scanner.py`: Contains the logic to scan ports and resolve services.
+- `main.py`: Entry point of the application to demonstrate port scanning functionality.
+- `test_module.py`: Contains unit tests for the port scanning functionality.
+- `ports_and_services.json`: A JSON file containing port-to-service mappings.
+
+## Requirements
+- Python 3.x
+
+## Usage
+
+### Scanning Ports
+You can run the `main.py` script, which will:
+1. Scan a specified range of ports on a given target (either IP or hostname).
+2. Optionally provide detailed service information for each open port when running in verbose mode.
+
+#### Example
+```bash
+python main.py
